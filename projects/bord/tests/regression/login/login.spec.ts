@@ -82,4 +82,45 @@ test.describe('Login — Bord', () => {
     await expect(page.getByPlaceholder('Introduce tu contraseña')).not.toBeVisible();
   });
 
+  // CA-7: dashboard muestra todos los elementos estructurales tras login exitoso
+  // Valida menú, datos de usuario, widgets de KPIs y acciones rápidas.
+  // Los números de los KPIs son dinámicos — solo se validan los títulos.
+  test('@smoke @regression dashboard muestra menú navegación, KPIs y acciones rápidas', async ({ page }) => {
+    await goToPasswordStep(page, process.env.QA_USER!);
+    await page.getByPlaceholder('Introduce tu contraseña').fill(process.env.QA_PASS!);
+    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    await expect(page).toHaveURL(/\/nodi\/dashboard/);
+
+    // Menú lateral de navegación
+    await expect(page.getByRole('button', { name: 'Home' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Empleados' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Inventario' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Órdenes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Servicios logísticos' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cotizaciones' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Facturación' })).toBeVisible();
+
+    // Datos del usuario autenticado (nombre completo — evita ambigüedad con el toast de bienvenida)
+    await expect(page.getByText('Britney Colt Jimenez Gutierrez', { exact: false })).toBeVisible();
+    await expect(page.getByText('Usuario', { exact: true })).toBeVisible();
+    await expect(page.getByText('PRODUCTO Y TECH')).toBeVisible();
+    await expect(page.getByText('Platinum')).toBeVisible();
+
+    // Widget de herramientas — exact:true evita ambigüedad con el tooltip oculto del card
+    await expect(page.getByText('Herramientas almacenadas', { exact: true })).toBeVisible();
+
+    // Acciones rápidas
+    await expect(page.getByText('Solicita servicios logísticos en un clic')).toBeVisible();
+    await expect(page.getByText('Offboarding')).toBeVisible();
+    await expect(page.getByText('Onboarding')).toBeVisible();
+    await expect(page.getByText('Mover entre ubicaciones')).toBeVisible();
+
+    // Sección de tracking — "Órdenes" y "Servicios" son ambiguos (aparecen en nav, tabs y tooltips)
+    // Se valida el título de sección + el tab "Todos" (único en toda la página) + los filtros de estado
+    await expect(page.getByText('Tracking de órdenes y servicios', { exact: false })).toBeVisible();
+    await expect(page.getByText('Todos', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Por confirmar/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Requieren atención/ })).toBeVisible();
+  });
+
 });

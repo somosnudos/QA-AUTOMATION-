@@ -16,6 +16,29 @@ Dos pasos:
 | CA-4 | Contraseña incorrecta muestra error en paso 2 | negativo |
 | CA-5 | El campo contraseña no es visible hasta ingresar el correo y hacer clic en "Continuar" | flujo |
 | CA-6 | El campo contraseña tiene type="password" (no expone la contraseña en texto plano) | seguridad |
+| CA-7 | Tras login exitoso el dashboard muestra menú de navegación, datos del usuario, widgets de KPIs y acciones rápidas | post-login |
+
+## Elementos del dashboard a validar (CA-7)
+### Menú lateral (navegación)
+- Home, Empleados, Inventario, Órdenes, Servicios logísticos, Cotizaciones, Facturación
+
+### Datos del usuario
+- Nombre parcial: "Britney Colt"
+- Rol: "Usuario"
+- Plan: "PRODUCTO Y TECH" y "Platinum"
+
+### Widget de herramientas (los números son dinámicos y NO se validan)
+- "Herramientas almacenadas" — texto visible del card
+- "Nuevas" y "Usadas" — etiquetas de categoría visibles en el card
+- Nota: "Total de Herramientas almacenadas" es solo el título del tooltip (oculto por CSS), no se valida
+
+### Acciones rápidas
+- Botones: "Offboarding", "Onboarding", "Mover entre ubicaciones"
+
+### Sección tracking
+- Título: "Tracking de órdenes y servicios"
+- Tab "Todos" (único en la página — los otros tabs "Órdenes" y "Servicios" son ambiguos con el sidebar)
+- Botones de filtro: "Por confirmar", "Requieren atención"
 
 ## Casos fuera de scope
 - Recuperación de contraseña (link "¿Olvidaste tu contraseña?")

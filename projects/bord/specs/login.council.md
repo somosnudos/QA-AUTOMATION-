@@ -68,4 +68,17 @@ _¿Es flaky? ¿Tiene esperas duras? ¿Locators frágiles?_
 
 ---
 
+---
+
+## Actualización 2026-06-13 — CA-7 (dashboard post-login)
+
+Se agregó CA-7: `@smoke @regression dashboard muestra menú navegación, KPIs y acciones rápidas`
+
+**Hallazgos durante implementación:**
+- "Total de Herramientas almacenadas" es texto de tooltip (CSS hidden) — se usa `exact: true` para apuntar al `<span class="metricName">` visible.
+- "Órdenes", "Servicios" aparecen 8+ veces en el DOM (nav, tabs, tooltips, section titles) — no usar `getByText()` sin contexto. Para el nav: `getByRole('button', { name: '...' })`. Para el tracking: se valida solo el tab "Todos" (único) y los botones de filtro.
+- El toast "Bienvenid@, Britney Colt!" causa ambigüedad con `getByText('Britney Colt')` → usar nombre completo "Britney Colt Jimenez Gutierrez".
+
+Estos 5 puntos ya cubren CA-7 (misma suite, mismas reglas):
+
 > ✅ Los 5 puntos aprobados — listo para graduar a `@regression`.
