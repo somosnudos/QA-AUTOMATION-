@@ -1,14 +1,33 @@
 // Spec: specs/login.spec.md
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
-// Descarta cualquier modal/banner con botón "Entendido" (aviso de cookies,
-// cierre de sesión por seguridad, etc.) — espera hasta 4s por si tarda en renderizar
-async function dismissBanner(page: import('@playwright/test').Page) {
-  const banner = page.getByRole('button', { name: 'Entendido' });
-  await banner.waitFor({ state: 'visible', timeout: 4000 }).catch(() => null);
-  if (await banner.isVisible().catch(() => false)) {
-    await banner.click();
-    await page.waitForTimeout(300);
+// El modal "Por seguridad, hemos cerrado tu sesión" puede aparecer en dos momentos:
+// 1. Al cargar /login (cuando hay sesión activa previa detectada por el servidor).
+// 2. Tras hacer clic en "Continuar" (cuando el servidor valida el email contra sesiones activas).
+// Esta función unifica el manejo de ambos casos sin generar pasos rojos en el reporte.
+
+async function dismissLockout(page: Page) {
+  const lockoutBtn = page.getByRole('button', { name: 'Entendido' });
+  if (await lockoutBtn.isVisible()) await lockoutBtn.click();
+}
+
+// Navega al paso 2 (campo contraseña), manejando el lockout si aparece tras "Continuar".
+async function goToPasswordStep(page: Page, email: string) {
+  const passwordInput = page.getByPlaceholder('Introduce tu contraseña');
+  const lockoutBtn    = page.getByRole('button', { name: 'Entendido' });
+
+  await page.getByPlaceholder('correo@empresa.com').fill(email);
+  await page.getByRole('button', { name: 'Continuar' }).click();
+
+  // Espera a que aparezca el campo contraseña O el modal de lockout
+  await expect(passwordInput.or(lockoutBtn)).toBeVisible({ timeout: 10000 });
+
+  if (await lockoutBtn.isVisible()) {
+    await lockoutBtn.click();
+    // Tras el lockout la app vuelve al paso 1; reintentamos Continuar una vez
+    await page.getByPlaceholder('correo@empresa.com').fill(email);
+    await page.getByRole('button', { name: 'Continuar' }).click();
+    await expect(passwordInput).toBeVisible({ timeout: 10000 });
   }
 }
 
@@ -16,15 +35,16 @@ test.describe('Login — Bord', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
-    await dismissBanner(page);
+    // Caso 1: lockout detectado al cargar la página
+    const emailInput = page.getByPlaceholder('correo@empresa.com');
+    const lockoutBtn = page.getByRole('button', { name: 'Entendido' });
+    await expect(emailInput.or(lockoutBtn)).toBeVisible({ timeout: 10000 });
+    await dismissLockout(page);
   });
 
   // CA-1: happy path
   test('@smoke @regression login exitoso redirige al dashboard', async ({ page }) => {
-    await page.getByPlaceholder('correo@empresa.com').fill(process.env.QA_USER!);
-    await page.getByRole('button', { name: 'Continuar' }).click();
-
-    await expect(page.getByPlaceholder('Introduce tu contraseña')).toBeVisible();
+    await goToPasswordStep(page, process.env.QA_USER!);
     await page.getByPlaceholder('Introduce tu contraseña').fill(process.env.QA_PASS!);
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
 
@@ -38,25 +58,18 @@ test.describe('Login — Bord', () => {
 
   // CA-6: contraseña es type=password
   test('@regression campo contraseña es de tipo password', async ({ page }) => {
-    await page.getByPlaceholder('correo@empresa.com').fill(process.env.QA_USER!);
-    await page.getByRole('button', { name: 'Continuar' }).click();
-
+    await goToPasswordStep(page, process.env.QA_USER!);
     const passwordInput = page.getByPlaceholder('Introduce tu contraseña');
-    await expect(passwordInput).toBeVisible();
     await expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
   // CA-4: contraseña incorrecta muestra error
   test('@regression contraseña incorrecta muestra mensaje de error', async ({ page }) => {
-    await page.getByPlaceholder('correo@empresa.com').fill(process.env.QA_USER!);
-    await page.getByRole('button', { name: 'Continuar' }).click();
-
-    await expect(page.getByPlaceholder('Introduce tu contraseña')).toBeVisible();
+    await goToPasswordStep(page, process.env.QA_USER!);
     await page.getByPlaceholder('Introduce tu contraseña').fill('contraseña_incorrecta_123');
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
 
     await expect(page).not.toHaveURL(/\/nodi\/dashboard/);
-    // Verificar que hay un mensaje de error visible — la app lo muestra bajo el campo contraseña
     await expect(page.locator('body')).toContainText(/contraseña|incorrecta|error/i);
   });
 
