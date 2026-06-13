@@ -8,5 +8,7 @@ const ROOT = __dirname;
 export default createProjectConfig({
   testDir: path.join(ROOT, 'tests'),
   outputDir: path.join(ROOT, 'test-results'),
+  // workers: 1 evita lockouts por intentos paralelos contra producción
+  workers: 1,
   use: { baseURL: process.env.BASE_URL },
 });
