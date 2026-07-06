@@ -59,11 +59,12 @@ test.describe('Próximo a llegar — Módulo de entrada (BORD-4445)', () => {
     await expect(todosTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  // CA-2: los tres tabs presentes — YAML: role="tab", "Ordenes" sin tilde
+  // CA-2: los tres tabs presentes — Figma especifica "Órdenes" CON tilde
+  // BUG conocido: la app muestra "Ordenes" sin tilde → este test debe FALLAR hasta que el dev corrija
   test('@unreviewed los tres tabs Todos Servicios Órdenes están presentes', async ({ page }) => {
     await expect(page.getByRole('tab', { name: /todos/i })).toBeVisible();
     await expect(page.getByRole('tab', { name: /servicios/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /ordenes/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /^Órdenes/i })).toBeVisible();
   });
 
   // CA-3: buscador — placeholder real: "Busca por ID, cliente, modelo, serial..."
@@ -91,9 +92,9 @@ test.describe('Próximo a llegar — Módulo de entrada (BORD-4445)', () => {
     await expect(serviciosTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  // CA-7: clic en tab Órdenes lo activa
+  // CA-7: clic en tab Órdenes lo activa — usa /órdenes/ para que falle si hay typo
   test('@unreviewed clic en tab Órdenes lo deja activo', async ({ page }) => {
-    const ordenesTab = page.getByRole('tab', { name: /ordenes/i });
+    const ordenesTab = page.getByRole('tab', { name: /^Órdenes/i });
     await ordenesTab.click();
     await expect(ordenesTab).toHaveAttribute('aria-selected', 'true');
   });
