@@ -19,4 +19,4 @@ _Pendiente de definición con el equipo_
 - Ambiente beta disponible toda la semana (a diferencia de producción)
 
 ## Reporte publicado
-_Pendiente de configurar_
+https://qa-reportes-soga.pages.dev
