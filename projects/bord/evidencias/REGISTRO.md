@@ -11,3 +11,13 @@
 | 2026-06-13 15:20 | login, smoke | ✅ PASS | 6 | 0 | local: bord/monocart-report/index.html |
 | 2026-06-13 15:24 | login | ❌ FAIL | 0 | 1 | local: bord/monocart-report/index.html |
 | 2026-06-13 15:27 | login, smoke | ✅ PASS | 6 | 0 | local: bord/monocart-report/index.html |
+| 2026-06-13 15:33 | login, smoke | ❌ FAIL | 5 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 15:37 | login, smoke | ❌ FAIL | 4 | 2 | local: bord/monocart-report/index.html |
+| 2026-06-13 15:39 | login, smoke | ✅ PASS | 6 | 0 | local: bord/monocart-report/index.html |
+| 2026-06-13 15:48 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 15:49 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 16:00 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 16:01 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 16:02 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
+| 2026-06-13 16:03 | login, smoke | ✅ PASS | 7 | 0 | local: bord/monocart-report/index.html |
+| 2026-06-18 11:15 | login, smoke | ✅ PASS | 7 | 0 | local: bord/monocart-report/index.html |

@@ -1,24 +1,25 @@
-# Cliente: Bord
+# Cliente: Bord — Dash
 
 ## Ambientes
-| Ambiente | URL | Pruebas |
-|---|---|---|
-| Producción | https://dash.bord.co | ⚠️ Solo pruebas NO destructivas — servidores apagados fines de semana |
-
-> Sin staging por ahora. Todas las pruebas corren contra producción.
-> **NUNCA** crear, modificar ni borrar datos reales.
+| Ambiente | URL | Config | Pruebas |
+|---|---|---|---|
+| Beta | https://beta.dash.bord.co | `playwright.config.beta.ts` | ✅ aquí corre todo |
+| Producción | https://dash.bord.co | `playwright.config.ts` | ⚠️ Solo NO destructivas — servidores apagados fines de semana |
 
 ## Usuarios de prueba
-| Rol | Usuario | Credenciales |
+| Ambiente | Usuario | Credenciales |
 |---|---|---|
-| Usuario QA | britney.colt+1@bord.co | en `.env` → `QA_USER` / `QA_PASS` |
+| Producción | britney.colt+1@bord.co | `.env` → `QA_USER` / `QA_PASS` |
+| Beta | britney.colt+8@bord.co | `.env.beta` → `QA_USER` / `QA_PASS` |
 
 ## Módulos críticos
-1. Login (en construcción)
+1. Login
+2. Facturación
 
 ## Particularidades
-- Sin ambiente de staging disponible actualmente
-- Servidores apagados los fines de semana — no correr pruebas en esos días
+- Servidores de producción apagados los fines de semana — usar beta en esos días
+- Login tiene modal de seguridad que puede aparecer al cargar /login O tras clic en "Continuar" — ver `goToPasswordStep()` en login.spec.ts
+- `workers: 1` obligatorio para evitar lockout por intentos paralelos
 
 ## Reporte publicado
 _(pendiente de configurar)_
