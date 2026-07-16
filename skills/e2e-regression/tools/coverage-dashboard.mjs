@@ -72,7 +72,7 @@ const appCard = (a) => `
       <div><h2>${esc(a.name)} <span class="alias">/ ${esc(a.alias)}</span></h2><p class="repo">${esc(a.repo)}</p></div>
       <span class="pipe ${a.pipeline ? 'on' : 'off'}"><span class="dot"></span>${a.pipeline ? 'Pipeline E2E activo' : 'Sin pipeline E2E aún'}</span>
       <div>
-        <div class="pct">${a.modPct}%<small> &nbsp;módulos cubiertos</small></div>
+        <div class="pct health-${a.modPct >= 80 ? 'good' : a.modPct >= 40 ? 'warn' : 'bad'}">${a.modPct}%<small> &nbsp;módulos cubiertos</small></div>
         <div class="bar">
           <span class="seg-covered" style="width:${a.total ? (a.covered / a.total) * 100 : 0}%"></span>
           <span class="seg-partial" style="width:${a.total ? (a.partial / a.total) * 100 : 0}%"></span>
@@ -119,6 +119,8 @@ const html = `<title>Mapa de cobertura E2E — Frontends Bord</title>
   .counts b{color:var(--ink);font-variant-numeric:tabular-nums}
   .pct{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
   .pct small{font-size:13px;color:var(--ink-faint);font-weight:500}
+  .pct.health-bad{color:#c2453a}.pct.health-warn{color:var(--s-partial)}.pct.health-good{color:var(--s-covered)}
+  :root[data-theme="dark"] .pct.health-bad{color:#e0685c}@media (prefers-color-scheme:dark){.pct.health-bad{color:#e0685c}}
   .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:26px 0 6px;padding:14px 16px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);font-size:13px}
   .legend .item{display:inline-flex;align-items:center;gap:8px;color:var(--ink-soft)}
   .swatch{width:12px;height:12px;border-radius:4px;flex:none}.sw-covered{background:var(--s-covered)}.sw-partial{background:var(--s-partial)}.sw-none{background:var(--s-none)}
