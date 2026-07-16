@@ -79,6 +79,13 @@ node coverage-dashboard.mjs --manifest apps.json --out coverage-map.html \
 `apps.json` es lo único que se mantiene a mano: la lista de módulos de cada app
 (sale del código del frontend). Cuando una app gana/quita un módulo, se edita ahí.
 
+**Tablero publicado (equipo):** https://qa-cobertura-bord.pages.dev
+Re-publicar tras regenerar:
+```bash
+mkdir -p /tmp/cov/site && cp <coverage-map.html> /tmp/cov/site/index.html
+npx wrangler pages deploy /tmp/cov/site --project-name=qa-cobertura-bord --branch=main
+```
+
 ## Cómo se vendoriza para CI
 
 `coverage-map.mjs` es el **gate ejecutable**, así que se **copia dentro del repo**
