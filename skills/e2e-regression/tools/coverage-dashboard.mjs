@@ -57,7 +57,9 @@ const apps = manifest.apps.map((app) => {
   return {
     ...app, modules, covered, partial,
     total: modules.length, totalCAs, coveredCAs,
-    caPct: totalCAs ? Math.round((coveredCAs / totalCAs) * 100) : 0,
+    // Titular honesto: % de MÓDULOS del universo con todos sus CA graduados.
+    // (El % por CA solo aplica a los specs que existen y se muestra por módulo.)
+    modPct: modules.length ? Math.round((covered / modules.length) * 100) : 0,
     hasCoverage: !!cov,
   };
 });
@@ -70,7 +72,7 @@ const appCard = (a) => `
       <div><h2>${esc(a.name)} <span class="alias">/ ${esc(a.alias)}</span></h2><p class="repo">${esc(a.repo)}</p></div>
       <span class="pipe ${a.pipeline ? 'on' : 'off'}"><span class="dot"></span>${a.pipeline ? 'Pipeline E2E activo' : 'Sin pipeline E2E aún'}</span>
       <div>
-        <div class="pct">${a.caPct}%<small> &nbsp;CA graduados</small></div>
+        <div class="pct">${a.modPct}%<small> &nbsp;módulos cubiertos</small></div>
         <div class="bar">
           <span class="seg-covered" style="width:${a.total ? (a.covered / a.total) * 100 : 0}%"></span>
           <span class="seg-partial" style="width:${a.total ? (a.partial / a.total) * 100 : 0}%"></span>
@@ -170,4 +172,4 @@ const html = `<title>Mapa de cobertura E2E — Frontends Bord</title>
 
 writeFileSync(OUT, html);
 console.log(`✓ Tablero generado → ${OUT}`);
-console.log(`  Apps: ${apps.map((a) => `${a.name} ${a.caPct}%`).join(' · ')}`);
+console.log(`  Apps: ${apps.map((a) => `${a.name} ${a.modPct}% módulos (${a.coveredCAs}/${a.totalCAs} CA)`).join(' · ')}`);
