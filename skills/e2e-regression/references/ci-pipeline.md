@@ -45,8 +45,15 @@ Correr el workflow no basta; hay que volverlo **check requerido**:
    corrida; ej. `e2e (1, 4)` … `e2e (4, 4)`, o el job `merge-reports`).
 4. Activar **"Require branches to be up to date before merging"**.
 
-Con esto, un PR a `develop` **no se puede mergear** si la regresión `@regression`
-falla o no existe. Eso materializa el "puede y **debe**".
+Con esto, un PR a `develop` **no se puede mergear** si la suite E2E falla. Eso
+materializa el "puede y **debe**".
+
+> **Nota (confirmado con devops):** el pipeline corre **todos** los tests del PR,
+> sin filtrar por tag — los tags `@regression`/`@unreviewed` son la semántica de
+> madurez que lee `coverage-map`, no un filtro de CI. Por eso solo se suben al PR
+> tests listos para correr; lo inmaduro queda en la rama local y su hueco lo
+> muestra `coverage-map`. El segundo gate es el job `coverage --strict`: exige que
+> cada CA del spec tenga test graduado.
 
 > **Adopción gradual (opcional):** para que el equipo no se frene de golpe, se
 > puede arrancar el workflow sin marcarlo requerido (corre y reporta), y activar

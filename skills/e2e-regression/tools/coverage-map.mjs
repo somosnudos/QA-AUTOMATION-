@@ -52,7 +52,7 @@ const byCa = (a, b) => caNum(a) - caNum(b);
 function parseSpec(file) {
   const text = readFileSync(file, 'utf8');
   const cas = distinct([...text.matchAll(/^\|\s*(CA-\d+)\s*\|/gim)].map((m) => m[1]));
-  const jira = (text.match(/Jira:\s*([A-Z][A-Z0-9]+-\d+)/) || [])[1] || null;
+  const jira = (text.match(/Jira:\**\s*([A-Z][A-Z0-9]+-\d+)/) || [])[1] || null;
   return { module: basename(file).replace(/\.spec\.md$/i, ''), file, jira, cas };
 }
 

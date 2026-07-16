@@ -89,8 +89,11 @@ jobs:
         run: yarn playwright install chromium --with-deps
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run E2E shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-        # Solo lo graduado corre en el gate. Los @unreviewed no bloquean.
-        run: yarn playwright test --grep @regression --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        # Convención de la empresa: el pipeline corre TODOS los tests (sin --grep).
+        # Los tags @regression/@unreviewed no filtran acá — son la semántica de
+        # madurez que lee coverage-map. Consecuencia: no subas al PR un test que
+        # no esté listo para correr en CI.
+        run: yarn playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           PW_EMAIL: ${{ secrets.PW_EMAIL }}
           PW_PASSWORD: ${{ secrets.PW_PASSWORD }}

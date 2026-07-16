@@ -88,10 +88,18 @@ y sin repetir el formulario.
 
 ## Tags de madurez
 
+> **Importante:** los tags NO filtran el pipeline. El CI de la empresa corre
+> **todos** los tests del PR, sin `--grep` (convención de devops). Los tags son
+> la **semántica de madurez que lee `coverage-map`**: un CA cuenta como cubierto
+> solo si su test está graduado. Consecuencia práctica: **no subas al PR un test
+> que no esté listo para correr en CI** — un `@unreviewed` a medio construir va
+> a correr igual y puede poner el pipeline en rojo. Lo no listo se queda en tu
+> rama local; el hueco de cobertura lo muestra `coverage-map`.
+
 | Tag | Significado |
 |---|---|
-| `@unreviewed` | recién construido; no pasó El Consejo. NO cuenta para el gate. |
-| `@regression` | pasó El Consejo + 3 corridas estables. Lo exige el pipeline. |
+| `@unreviewed` | recién construido; no pasó El Consejo. Cuenta como "a medias" en coverage-map. |
+| `@regression` | pasó El Consejo + 3 corridas estables. Cuenta como CA cubierto. |
 | `@smoke` | subconjunto crítico (login, happy path del módulo estrella). |
 
 ## Scripts de `package.json` (calcados de `mono-crm`)
@@ -116,7 +124,9 @@ y sin repetir el formulario.
 |---|---|
 | Correr toda la regresión | `yarn pw` |
 | Correr un módulo | `yarn pw e2e/tests/<módulo>` |
-| Solo smoke | `yarn pw --grep @smoke` |
-| Solo lo graduado (lo del gate) | `yarn pw --grep @regression` |
+| Solo smoke (local) | `yarn pw --grep @smoke` |
+| Solo lo graduado (local) | `yarn pw --grep @regression` |
 | Iterar con UI | `yarn pwu:dev` |
 | Depurar un test | `yarn pw:debug` |
+
+Los `--grep` son atajos **locales** para iterar; en CI corre todo.
