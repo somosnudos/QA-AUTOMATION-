@@ -87,12 +87,24 @@ miradas de `references/el-consejo.md` y escribí el veredicto en
 `e2e/specs/<módulo>.council.md`. La **prueba de fuego** (romper el resultado
 esperado a propósito y confirmar que el test se pone ROJO) es innegociable.
 
-### 5 · Graduá
+### 5 · Graduá y verificá la cobertura
 
 Cuando el test cumple su spec, pasó El Consejo y corrió **estable 3 veces**:
 quitá `@unreviewed`, poné `@regression` (+ `@smoke` si es flujo crítico como
-login o el happy path del módulo estrella). A partir de acá el gate del pipeline
-lo exige (ver `references/ci-pipeline.md`).
+login o el happy path del módulo estrella).
+
+Antes de cerrar el módulo, corré el checker de cobertura para confirmar que
+**cada CA del spec tiene su test graduado**:
+
+```bash
+node e2e/tools/coverage-map.mjs          # tabla + e2e/artifacts/coverage.json
+node e2e/tools/coverage-map.mjs --strict # falla si queda algún CA sin cubrir
+```
+
+Los CA que aparezcan en `faltan:` son huecos reales — o falta un test, o el test
+existe pero sigue `@unreviewed`. Ningún módulo se da por "cubierto" hasta que
+`--strict` pasa en verde. A partir de acá el gate del pipeline lo exige (ver
+`references/ci-pipeline.md` y `references/coverage.md`).
 
 ## Flujo Figma ↔ implementación (cuando la historia trae diseño)
 
@@ -122,5 +134,7 @@ Si la historia de Jira enlaza Figma y el MCP de Figma está disponible:
 | La convención exacta del repo (estructura, POM, auth, scripts, tags) | `references/conventions.md` |
 | Cómo funciona el pipeline y el gate de merge | `references/ci-pipeline.md` |
 | Las 5 miradas + la prueba de fuego | `references/el-consejo.md` |
+| El contrato de trazabilidad CA + cómo se mide la cobertura | `references/coverage.md` |
+| El checker de cobertura y el generador del tablero | `tools/coverage-map.mjs`, `tools/coverage-dashboard.mjs` |
 | Plantillas para un repo sin E2E | `templates/` |
 | Cómo un repo referencia/actualiza este skill | `install/` |

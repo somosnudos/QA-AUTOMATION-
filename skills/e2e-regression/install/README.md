@@ -28,6 +28,14 @@ el repo lo referencia con un stub y lo trae con un script.
    `e2e/tests|specs`. Ajustá lo marcado `AJUSTAR` (yarn/npm, Node, puerto).
    Agregá `e2e/.auth/` y `e2e/artifacts/` al `.gitignore`.
 
+   **Vendorizá el gate de cobertura** (debe viajar con el repo para que CI lo
+   corra; `.e2e-skill/` es gitignored y no está en el checkout de CI):
+   ```bash
+   mkdir -p e2e/tools
+   cp .e2e-skill/tools/coverage-map.mjs e2e/tools/coverage-map.mjs
+   ```
+   El `e2e.yml` corre `node e2e/tools/coverage-map.mjs --strict` como job aparte.
+
 4. **Cargar los secrets** (Settings → Secrets → Actions), una sola vez:
    `ENV_FILE`, `PW_EMAIL`, `PW_PASSWORD`, `AWS_ACCESS_KEY`,
    `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`.

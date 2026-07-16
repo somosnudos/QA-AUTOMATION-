@@ -12,6 +12,19 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # Gate de cobertura: cada CA de cada spec debe tener un test graduado.
+  # Rápido (sin navegador). Marcalo como check requerido junto con e2e.
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # coverage-map.mjs viene vendorizado en e2e/tools/ (ver references/coverage.md)
+      - name: Verificar cobertura de criterios de aceptación
+        run: node e2e/tools/coverage-map.mjs --strict
+
   build:
     runs-on: ubuntu-latest
     steps:

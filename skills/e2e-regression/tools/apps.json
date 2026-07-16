@@ -1,0 +1,69 @@
+{
+  "note": "Universo de módulos por app (lo QUÉ debe cubrirse). Los módulos salen del código de cada frontend; el estado lo llena coverage-map desde los specs/tests. Actualizá esta lista cuando una app gana o quita un módulo.",
+  "apps": [
+    {
+      "name": "dash",
+      "alias": "CRM",
+      "repo": "mono-crm",
+      "coverageRepo": "mono-crm",
+      "pipeline": true,
+      "modules": [
+        { "name": "Login / Autenticación", "key": "login" },
+        { "name": "Home / Dashboard", "key": "home" },
+        { "name": "Empleados", "key": "empleados" },
+        { "name": "Inventario", "key": "inventario" },
+        { "name": "Órdenes", "key": "ordenes" },
+        { "name": "Servicios logísticos", "key": "servicios-logisticos" },
+        { "name": "Cotizaciones", "key": "cotizaciones" },
+        { "name": "Facturación", "key": "facturacion" }
+      ]
+    },
+    {
+      "name": "soga",
+      "alias": "WMS",
+      "repo": "wms-frontend",
+      "coverageRepo": "soga",
+      "pipeline": false,
+      "modules": [
+        { "name": "Login / Autenticación", "key": "login" },
+        { "name": "Home / Dashboard", "key": "home" },
+        { "name": "Próximo a llegar", "key": "proximo-a-llegar" },
+        { "name": "Por escanear", "key": "por-escanear" },
+        { "name": "Inventariar", "key": "inventariar" },
+        { "name": "Próximo a salir", "key": "proximo-a-salir" },
+        { "name": "Alistar", "key": "alistar" },
+        { "name": "Inspección de herramienta", "key": "inspeccion-herramienta" }
+      ]
+    },
+    {
+      "name": "backoffice",
+      "alias": "Admin",
+      "repo": "backoffice",
+      "coverageRepo": "backoffice",
+      "pipeline": true,
+      "modules": [
+        { "name": "Login / Autenticación", "key": "login" },
+        { "name": "Dashboard", "key": "dashboard" },
+        { "name": "Catálogo", "key": "catalogo" },
+        { "name": "Órdenes", "key": "ordenes" },
+        { "name": "Órdenes de stock", "key": "ordenes-stock" },
+        { "name": "Facturación", "key": "facturacion" },
+        { "name": "Servicios logísticos", "key": "servicios-logisticos" },
+        { "name": "Marcas", "key": "marcas" },
+        { "name": "Herramientas", "key": "herramientas" },
+        { "name": "Cotizaciones", "key": "cotizaciones" },
+        { "name": "Países", "key": "paises" },
+        { "name": "Negocios", "key": "negocios" },
+        { "name": "Configuración", "key": "configuracion" },
+        { "name": "Blog", "key": "blog" },
+        { "name": "Anuncios", "key": "anuncios" },
+        { "name": "Carga masiva", "key": "carga-masiva" },
+        { "name": "Tracking de órdenes", "key": "tracking-ordenes" },
+        { "name": "Soporte Ops", "key": "soporte-ops" },
+        { "name": "Cuenta", "key": "cuenta" },
+        { "name": "Verificación de dirección", "key": "verificacion-direccion" },
+        { "name": "Píldoras", "key": "pildoras" }
+      ]
+    }
+  ]
+}
