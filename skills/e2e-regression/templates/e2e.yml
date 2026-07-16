@@ -1,0 +1,181 @@
+# Plantilla de .github/workflows/e2e.yml — pipeline E2E con reporte a S3.
+# Calcada de mono-crm. AJUSTAR: gestor de paquetes (yarn/npm) y versión de Node.
+# Este workflow es el que se marca como CHECK REQUERIDO en branch protection
+# para que un PR no pueda mergear si la regresión falla (ver references/ci-pipeline.md).
+name: E2E
+
+on:
+  pull_request:
+    branches: ['develop']
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22' # AJUSTAR (wms-frontend usa 24)
+          cache: 'yarn' # AJUSTAR a 'npm' si el repo usa npm
+          cache-dependency-path: yarn.lock # AJUSTAR a package-lock.json
+      - run: yarn install --frozen-lockfile # AJUSTAR: npm ci
+      - name: Create .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: echo "$ENV_FILE" > .env
+      - run: yarn build # AJUSTAR: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+      - run: yarn install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Create .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: echo "$ENV_FILE" > .env
+      - name: Export .env vars to job environment
+        run: |
+          while IFS='=' read -r raw_key raw_value; do
+            key="$(echo "$raw_key" | xargs)"
+            [[ -z "$key" || "$key" == \#* ]] && continue
+            value="$(echo "$raw_value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            echo "::add-mask::$value"
+            echo "$key=$value" >> "$GITHUB_ENV"
+          done < .env
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('yarn.lock') }}
+      - name: Install Playwright browsers
+        run: yarn playwright install chromium --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Run E2E shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        # Solo lo graduado corre en el gate. Los @unreviewed no bloquean.
+        run: yarn playwright test --grep @regression --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          PW_EMAIL: ${{ secrets.PW_EMAIL }}
+          PW_PASSWORD: ${{ secrets.PW_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: e2e/artifacts/blob-report/
+          retention-days: 1
+
+  merge-reports:
+    if: ${{ !cancelled() }}
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+      - run: yarn install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - name: Merge reports
+        run: yarn playwright merge-reports --reporter html ./all-blob-reports
+        env:
+          PLAYWRIGHT_HTML_REPORT: e2e/artifacts/playwright-report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/artifacts/playwright-report/
+          retention-days: 7
+
+  deploy-results:
+    if: ${{ !cancelled() }}
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+      - name: Upload HTML report to S3
+        id: upload-report
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          REPORT_PREFIX="e2e-reports/${{ github.run_id }}"
+          aws s3 cp playwright-report "s3://${{ secrets.AWS_S3_BUCKET }}/$REPORT_PREFIX" --recursive
+          REPORT_URL=$(aws s3 presign "s3://${{ secrets.AWS_S3_BUCKET }}/$REPORT_PREFIX/index.html" --expires-in 604800)
+          echo "report_url=$REPORT_URL" >> "$GITHUB_OUTPUT"
+      - name: Publish report check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "Playwright HTML report",
+              head_sha: context.payload.pull_request.head.sha,
+              status: "completed",
+              conclusion: "success",
+              details_url: "${{ steps.upload-report.outputs.report_url }}",
+              output: {
+                title: "Playwright HTML report",
+                summary: "[View report](${{ steps.upload-report.outputs.report_url }})",
+              },
+            });
+      - name: Update PR comment with report link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = "<!-- e2e-report-comment -->";
+            const body = `${marker}\n### Playwright HTML report\n[View report](${{ steps.upload-report.outputs.report_url }})`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+            for (const comment of comments.filter((c) => c.body.includes(marker))) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+              });
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
