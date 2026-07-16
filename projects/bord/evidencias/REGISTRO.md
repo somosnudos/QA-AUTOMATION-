@@ -24,3 +24,7 @@
 | 2026-07-10 11:40 | login | ❌ FAIL | 5 | 1 | local: bord/monocart-report/index.html |
 | 2026-07-10 11:43 | login | ❌ FAIL | 5 | 1 | local: bord/monocart-report/index.html |
 | 2026-07-10 11:44 | login | ✅ PASS | 6 | 0 | local: bord/monocart-report/index.html |
+| 2026-07-16 18:20 | probe-dash-modules | ❌ FAIL | 0 | 1 | local: bord/monocart-report/index.html |
+| 2026-07-16 18:21 | probe-dash-modules | ❌ FAIL | 0 | 1 | local: bord/monocart-report/index.html |
+| 2026-07-16 18:22 | probe-dash-modules | ❌ FAIL | 0 | 1 | local: bord/monocart-report/index.html |
+| 2026-07-16 18:22 | probe-dash-modules | ✅ PASS | 1 | 0 | local: bord/monocart-report/index.html |
