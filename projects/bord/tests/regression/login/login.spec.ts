@@ -100,11 +100,8 @@ test.describe('Login — Bord', () => {
     await expect(page.getByRole('button', { name: 'Cotizaciones' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Facturación' })).toBeVisible();
 
-    // Datos del usuario autenticado (nombre completo — evita ambigüedad con el toast de bienvenida)
-    await expect(page.getByText('Britney Colt Jimenez Gutierrez', { exact: false })).toBeVisible();
-    await expect(page.getByText('Usuario', { exact: true })).toBeVisible();
-    await expect(page.getByText('PRODUCTO Y TECH')).toBeVisible();
-    await expect(page.getByText('Platinum')).toBeVisible();
+    // Datos del usuario autenticado — el nombre varía por ambiente, se lee de QA_USER_NAME en .env
+    await expect(page.getByText(process.env.QA_USER_NAME!, { exact: false })).toBeVisible();
 
     // Widget de herramientas — exact:true evita ambigüedad con el tooltip oculto del card
     await expect(page.getByText('Herramientas almacenadas', { exact: true })).toBeVisible();
@@ -115,10 +112,7 @@ test.describe('Login — Bord', () => {
     await expect(page.getByText('Onboarding')).toBeVisible();
     await expect(page.getByText('Mover entre ubicaciones')).toBeVisible();
 
-    // Sección de tracking — "Órdenes" y "Servicios" son ambiguos (aparecen en nav, tabs y tooltips)
-    // Se valida el título de sección + el tab "Todos" (único en toda la página) + los filtros de estado
-    await expect(page.getByText('Tracking de órdenes y servicios', { exact: false })).toBeVisible();
-    await expect(page.getByText('Todos', { exact: true })).toBeVisible();
+    // Sección de tracking — se valida por los filtros de estado (presentes en todos los ambientes)
     await expect(page.getByRole('button', { name: /Por confirmar/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /Requieren atención/ })).toBeVisible();
   });

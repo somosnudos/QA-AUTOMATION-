@@ -21,3 +21,6 @@
 | 2026-06-13 16:02 | login, smoke | ❌ FAIL | 6 | 1 | local: bord/monocart-report/index.html |
 | 2026-06-13 16:03 | login, smoke | ✅ PASS | 7 | 0 | local: bord/monocart-report/index.html |
 | 2026-06-18 11:15 | login, smoke | ✅ PASS | 7 | 0 | local: bord/monocart-report/index.html |
+| 2026-07-10 11:40 | login | ❌ FAIL | 5 | 1 | local: bord/monocart-report/index.html |
+| 2026-07-10 11:43 | login | ❌ FAIL | 5 | 1 | local: bord/monocart-report/index.html |
+| 2026-07-10 11:44 | login | ✅ PASS | 6 | 0 | local: bord/monocart-report/index.html |
