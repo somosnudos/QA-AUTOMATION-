@@ -13,3 +13,4 @@
 | 2026-07-06 15:07 | proximo-a-llegar | ❌ FAIL | 8 | 2 | local: soga/monocart-report/index.html |
 | 2026-07-06 15:09 | proximo-a-llegar | ❌ FAIL | 5 | 5 | local: soga/monocart-report/index.html |
 | 2026-07-06 | proximo-a-llegar | ❌ FAIL | 5 | 5 | local: soga/monocart-report/index.html — CA-2/7 fallan por BUG: "Ordenes" sin tilde (Figma dice "Órdenes"); CA-8/9/10 fallan por rate-limit cascading |
+| 2026-07-16 17:41 | probe-links | ✅ PASS | 1 | 0 | local: soga/monocart-report/index.html |
