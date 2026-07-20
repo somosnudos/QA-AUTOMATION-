@@ -40,11 +40,11 @@ antes de mergear**. Trabajás en español, guiando paso a paso. Tu postura es
 Trabajás **un módulo a la vez**, empezando por el más crítico (login siempre
 primero). Para cada módulo:
 
-### 1 · Spec primero (el QUÉ antes del código)
+### 1 · El QUÉ antes del código (sin archivo de spec separado)
 
 Toda cobertura nace de una historia de Jira. Con el MCP de Jira leé la historia
-(descripción, criterios de aceptación, links a Figma/Notion) y escribí
-`e2e/specs/<módulo>.spec.md` usando `templates/spec.template.md`. Reglas:
+(descripción, criterios de aceptación, links a Figma/Notion) antes de escribir
+un solo test. Reglas:
 
 - Los **criterios de aceptación los define el negocio** (la historia de Jira o
   el usuario). **NUNCA los inventes** — si falta información, preguntá.
@@ -52,8 +52,20 @@ Toda cobertura nace de una historia de Jira. Con el MCP de Jira leé la historia
   textos, tabs y estados que valida el test salen del Figma, no de suposiciones.
   (Ver el flujo Figma↔implementación abajo.)
 - Cada criterio de aceptación = **al menos una aserción** en el test.
-- El test lleva en su cabecera `// Spec: e2e/specs/<módulo>.spec.md` y
-  `// Jira: <KEY>`.
+- **NO crees un `e2e/specs/<módulo>.spec.md`.** Regla confirmada por devops
+  (Daniel Mora, 2026-07-20) para **todos los repos**: mantener un `.md` por
+  módulo en paralelo al código se desincroniza apenas varios workflows cambian
+  a la vez, y el nombre del archivo + el título del test ya deben bastar para
+  entender qué se prueba. En su lugar:
+  - El **título del test es autoexplicativo** en lenguaje claro (español),
+    describe exactamente qué valida — sin numeración `CA-N` (quedaría huérfana
+    sin un spec al que apuntar).
+  - Los **criterios de aceptación y el link a Jira van en la descripción del
+    PR**, no en un archivo del repo (ver `templates/`, sección de PR).
+  - Excepción: si el repo **ya tenía** specs `.md` mergeados a `develop` antes
+    de esta fecha (ej. mono-crm, wms-frontend), esos **no se tocan** — no se
+    reescribe historial ya integrado. La regla aplica hacia adelante, a
+    módulos nuevos.
 
 ### 2 · Construí el test siguiendo la convención del repo
 
@@ -83,28 +95,22 @@ Corré el módulo (`references/conventions.md` tiene los comandos). Si falla:
 ### 4 · El Consejo crítico — obligatorio antes de graduar
 
 Antes de que un test pase de `@unreviewed` a `@regression`, recorré las 5
-miradas de `references/el-consejo.md` y escribí el veredicto en
-`e2e/specs/<módulo>.council.md`. La **prueba de fuego** (romper el resultado
-esperado a propósito y confirmar que el test se pone ROJO) es innegociable.
+miradas de `references/el-consejo.md` y dejá el veredicto en la **descripción
+del PR** (no en un `.council.md` del repo — misma razón que el punto 1). La
+**prueba de fuego** (romper el resultado esperado a propósito y confirmar que
+el test se pone ROJO) es innegociable.
 
-### 5 · Graduá y verificá la cobertura
+### 5 · Graduá
 
-Cuando el test cumple su spec, pasó El Consejo y corrió **estable 3 veces**:
-quitá `@unreviewed`, poné `@regression` (+ `@smoke` si es flujo crítico como
-login o el happy path del módulo estrella).
+Cuando el test cumple los criterios de la historia, pasó El Consejo y corrió
+**estable 3 veces**: quitá `@unreviewed`, poné `@regression` (+ `@smoke` si es
+flujo crítico como login o el happy path del módulo estrella).
 
-Antes de cerrar el módulo, corré el checker de cobertura para confirmar que
-**cada CA del spec tiene su test graduado**:
-
-```bash
-node e2e/tools/coverage-map.mjs          # tabla + e2e/artifacts/coverage.json
-node e2e/tools/coverage-map.mjs --strict # falla si queda algún CA sin cubrir
-```
-
-Los CA que aparezcan en `faltan:` son huecos reales — o falta un test, o el test
-existe pero sigue `@unreviewed`. Ningún módulo se da por "cubierto" hasta que
-`--strict` pasa en verde. A partir de acá el gate del pipeline lo exige (ver
-`references/ci-pipeline.md` y `references/coverage.md`).
+Sin spec `.md` ni `coverage-map.mjs` (ver punto 1), la trazabilidad de "qué
+criterio cubre cada test" vive en la **descripción del PR**: antes de abrirlo,
+listá ahí los criterios de la historia y qué test de la lista cubre cada uno —
+así el reviewer ve la cobertura sin necesitar un archivo aparte en el repo.
+Ningún módulo se da por "cubierto" con solo el happy path (ver El Consejo).
 
 ## Flujo Figma ↔ implementación (cuando la historia trae diseño)
 
@@ -134,7 +140,10 @@ Si la historia de Jira enlaza Figma y el MCP de Figma está disponible:
 | La convención exacta del repo (estructura, POM, auth, scripts, tags) | `references/conventions.md` |
 | Cómo funciona el pipeline y el gate de merge | `references/ci-pipeline.md` |
 | Las 5 miradas + la prueba de fuego | `references/el-consejo.md` |
-| El contrato de trazabilidad CA + cómo se mide la cobertura | `references/coverage.md` |
-| El checker de cobertura y el generador del tablero | `tools/coverage-map.mjs`, `tools/coverage-dashboard.mjs` |
+| Cómo trazar criterios sin spec `.md` (vía PR) — y el estado legacy en mono-crm/wms-frontend | `references/coverage.md` |
 | Plantillas para un repo sin E2E | `templates/` |
 | Cómo un repo referencia/actualiza este skill | `install/` |
+
+> `tools/coverage-map.mjs` y `tools/coverage-dashboard.mjs` quedan como
+> **legado**, solo relevantes para los módulos ya mergeados en mono-crm y
+> wms-frontend que sí tienen specs `.md`. No los vendorices en módulos nuevos.

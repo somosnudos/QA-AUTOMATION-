@@ -1,4 +1,14 @@
-# Cobertura — el contrato de trazabilidad
+# Cobertura — el contrato de trazabilidad (LEGADO)
+
+> **Vigencia (2026-07-20):** Daniel Mora (devops) pidió, confirmado para toda
+> la empresa, que los módulos **nuevos NO tengan** un `.spec.md` por módulo ni
+> `coverage-map.mjs` — los nombres de test ya deben ser autoexplicativos, y un
+> doc en paralelo al código se desincroniza. **Este archivo describe el
+> mecanismo que sigue vigente en los módulos ya mergeados** de mono-crm (#4238)
+> y wms-frontend (#114/115/116/117) — no se reescribe lo ya integrado a
+> `develop`. Para módulos nuevos en cualquier repo: la trazabilidad de
+> criterio→test va en la **descripción del PR**, no en un archivo del repo.
+> Ver `SKILL.md` sección 1.
 
 La pregunta "¿se cubren todas las aserciones y casos de uso?" se responde sola si
 se respeta este contrato. La cobertura **no se declara, se deriva** cruzando dos
