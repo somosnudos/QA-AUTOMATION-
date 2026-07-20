@@ -32,7 +32,7 @@ const JSON_ONLY = has('json');
 const STRICT = has('strict');
 
 // ---- helpers --------------------------------------------------------------
-function walk(dir, test) {
+const walk = (dir, test) => {
   const out = [];
   if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
@@ -42,25 +42,25 @@ function walk(dir, test) {
     else if (test(p)) out.push(p);
   }
   return out;
-}
+};
 const distinct = (arr) => [...new Set(arr)];
 const caNum = (ca) => parseInt(ca.slice(3), 10);
 const byCa = (a, b) => caNum(a) - caNum(b);
 
 // ---- 1 · parsear specs (el denominador) -----------------------------------
 // Un CA declarado = fila de tabla que arranca con `| CA-N |`.
-function parseSpec(file) {
+const parseSpec = (file) => {
   const text = readFileSync(file, 'utf8');
   const cas = distinct([...text.matchAll(/^\|\s*(CA-\d+)\s*\|/gim)].map((m) => m[1]));
   const jira = (text.match(/Jira:\**\s*([A-Z][A-Z0-9]+-\d+)/) || [])[1] || null;
   return { module: basename(file).replace(/\.spec\.md$/i, ''), file, jira, cas };
-}
+};
 
 // ---- 2 · parsear tests (el numerador) -------------------------------------
 // Recorre líneas; acumula CA-N vistos (comentarios/título) hasta topar un
 // `test(...)`; al test le asigna esos CA + su tag de madurez.
 const GRADUATED = /@regression|@smoke/;
-function parseTests(file) {
+const parseTests = (file) => {
   const lines = readFileSync(file, 'utf8').split('\n');
   const tests = [];
   let pending = [];
@@ -76,7 +76,7 @@ function parseTests(file) {
     }
   }
   return tests;
-}
+};
 
 // ---- 3 · cruzar -----------------------------------------------------------
 const specFiles = walk(SPECS_DIR, (p) => /\.spec\.md$/i.test(p));
@@ -93,12 +93,12 @@ for (const f of testFiles) {
   testsByModule.set(match.module, list);
 }
 
-function statusOf(total, covered, unreviewed) {
+const statusOf = (total, covered, unreviewed) => {
   if (total === 0) return 'no-spec';
   if (covered === total) return 'covered';
   if (covered > 0 || unreviewed > 0) return 'partial';
   return 'none';
-}
+};
 
 const modules = specs.map((s) => {
   const tests = testsByModule.get(s.module) || [];
